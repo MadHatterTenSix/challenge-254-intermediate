@@ -16,7 +16,6 @@
 
 #define PLAYER_X 'X'
 #define PLAYER_O 'O'
-#define BLANK '0'
 #define LEGAL '*'
 
 #define NORTH     0
@@ -35,13 +34,13 @@ typedef struct
 } xy_t;
 
 int check_bounds(int x, int y);
-int deq(xy_t a, xy_t b);
-void print_board(char** board);
+xy_t create_xy(int x, int y);
 xy_t forward(xy_t src, xy_t direc);
-xy_t new_xy(int x, int y);
 char opponent(char player);
+void print_board(char** board);
 xy_t to_direc(int d);
 int write_legal(char **board, char player, xy_t src, xy_t direc);
+int xy_eq(xy_t a, xy_t b);
 
 int main()
 {
@@ -66,7 +65,7 @@ int main()
   {
     for (col = 0; col < BRD_LEN; col++)
     {
-      pos = new_xy(col, row);
+      pos = create_xy(col, row);
       write_legal(board, turn, pos, to_direc(NORTH));
       write_legal(board, turn, pos, to_direc(EAST));
       write_legal(board, turn, pos, to_direc(SOUTH));
@@ -96,18 +95,12 @@ check_bounds(int x, int y)
   return (x >= 0 && x < BRD_LEN && y >= 0 && y < BRD_LEN) ? 1 : 0;
 }
 
-int
-deq(xy_t a, xy_t b)
+xy_t create_xy(int x, int y)
 {
-  return (a.x == b.x && a.y == b.y) ? 1 : 0;
-}
-
-void
-print_board(char** board)
-{
-  int i;
-  for (i = 0; i < BRD_LEN; i++)
-    printf("%s\n", board[i]);
+  xy_t xy;
+  xy.x = x;
+  xy.y = y;
+  return xy;
 }
 
 xy_t
@@ -120,18 +113,18 @@ forward(xy_t src, xy_t direc)
   return dest;
 }
 
-xy_t new_xy(int x, int y)
-{
-  xy_t xy;
-  xy.x = x;
-  xy.y = y;
-  return xy;
-}
-
 char
 opponent(char player)
 {
   return (player == PLAYER_X) ? PLAYER_O : PLAYER_X;
+}
+
+void
+print_board(char** board)
+{
+  int i;
+  for (i = 0; i < BRD_LEN; i++)
+    printf("%s\n", board[i]);
 }
 
 xy_t
@@ -140,15 +133,15 @@ to_direc(int d)
   xy_t direc;
   switch (d)
   {
-    case NORTH: direc = new_xy( 0, -1); break;
-    case EAST:  direc = new_xy( 1,  0); break;
-    case SOUTH: direc = new_xy( 0,  1); break;
-    case WEST:  direc = new_xy(-1,  0); break;
-    case NORTHEAST: direc = new_xy( 1, -1); break;
-    case NORTHWEST: direc = new_xy(-1, -1); break;
-    case SOUTHEAST: direc = new_xy( 1,  1); break;
-    case SOUTHWEST: direc = new_xy(-1,  1); break;
-    default: direc = new_xy(0, 0); break;
+    case NORTH: direc = create_xy( 0, -1); break;
+    case EAST:  direc = create_xy( 1,  0); break;
+    case SOUTH: direc = create_xy( 0,  1); break;
+    case WEST:  direc = create_xy(-1,  0); break;
+    case NORTHEAST: direc = create_xy( 1, -1); break;
+    case NORTHWEST: direc = create_xy(-1, -1); break;
+    case SOUTHEAST: direc = create_xy( 1,  1); break;
+    case SOUTHWEST: direc = create_xy(-1,  1); break;
+    default: direc = create_xy(0, 0); break;
   }
   return direc;
 }
@@ -180,10 +173,16 @@ write_legal(char **board, char player, xy_t src, xy_t direc)
   }
 
   src_copy = forward(src_copy, direc);  
-  if (deq(src_copy, current) || c != player)
+  if (xy_eq(src_copy, current) || c != player)
     return 0;
     
   board[src.y][src.x] = LEGAL;
   
   return 1;
+}
+
+int
+xy_eq(xy_t a, xy_t b)
+{
+  return (a.x == b.x && a.y == b.y) ? 1 : 0;
 }
