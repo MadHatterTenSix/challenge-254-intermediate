@@ -48,7 +48,7 @@ int main()
   int i;
   int row;
   int col;
-  int n_legal = 0;
+  int n_legal;
   char turn;
   char **board;
   xy_t pos;
